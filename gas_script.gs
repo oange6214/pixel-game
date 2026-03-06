@@ -77,13 +77,24 @@ function handleGetQuestions(e) {
 // 處理送出成績並計算
 function handleSubmitScore(data) {
   var id = data.id;
-  var answers = data.answers; // 格式: { "題號1": "A", "題號2": "B" ... }
+  var answers = data.answers;
   var threshold = data.threshold || 3;
   
   if (!id || !answers) {
     return ContentService.createTextOutput(JSON.stringify({ error: "缺少必要參數 ID 或 answers" }))
       .setMimeType(ContentService.MimeType.JSON);
   }
+
+  // === 伺服器端防重複提交 (5 秒內同一個 ID 只處理一次) ===
+  var cache = CacheService.getScriptCache();
+  var cacheKey = 'submit_lock_' + id;
+  if (cache.get(cacheKey)) {
+    // 已在 5 秒內處理過，直接回傳上一次的成功結果避免重複寫入
+    return ContentService.createTextOutput(JSON.stringify({ success: true, deduplicated: true }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+  cache.put(cacheKey, '1', 5); // 鎖定 5 秒
+
   
   // 1. 計算分數
   var qSheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("題目");
