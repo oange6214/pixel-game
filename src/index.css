@@ -1,0 +1,96 @@
+:root {
+  --primary-color: #ffcc00;
+  --secondary-color: #ff3366;
+  --bg-color: #1a1a2e;
+  --text-color: #ffffff;
+  --panel-bg: #16213e;
+  --border-color: #e94560;
+}
+
+body {
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  min-width: 320px;
+  min-height: 100vh;
+  /* Use Press Start 2P for Latin/numbers, DotGothic16 for CJK fallback */
+  font-family: 'Press Start 2P', 'DotGothic16', monospace, sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  image-rendering: pixelated;
+  /* Crisp rendering for pixel art */
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Base Pixel Button */
+button {
+  font-family: 'Press Start 2P', 'DotGothic16', monospace, sans-serif;
+  background-color: var(--primary-color);
+  color: #000;
+  border: 4px solid #fff;
+  padding: 12px 20px;
+  cursor: pointer;
+  box-shadow: inset -4px -4px 0px rgba(0, 0, 0, 0.2), 4px 4px 0px #000;
+  transition: transform 0.1s, box-shadow 0.1s;
+  text-transform: uppercase;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+button:active {
+  transform: translate(4px, 4px);
+  box-shadow: inset -4px -4px 0px rgba(0, 0, 0, 0.2), 0px 0px 0px #000;
+}
+
+button:hover {
+  background-color: #ffdb4d;
+}
+
+button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: none;
+}
+
+/* Pixel Panel Container */
+.pixel-panel {
+  background-color: var(--panel-bg);
+  border: 4px solid var(--border-color);
+  padding: 20px;
+  box-shadow: 8px 8px 0px #000;
+  margin-bottom: 20px;
+}
+
+h1,
+h2,
+h3,
+p {
+  line-height: 1.5;
+}
+
+h1 {
+  font-size: 2rem;
+  color: var(--primary-color);
+  text-shadow: 4px 4px 0px #000;
+}
+
+h2 {
+  font-size: 1.5rem;
+  color: var(--secondary-color);
+  text-shadow: 2px 2px 0px #000;
+}
+
+/* Blinking effect for 'Press Start' text (removed to prevent distraction, kept class for structure) */
+.blink {
+  /* animation: blinker 1s linear infinite; */
+}
+
+@keyframes blinker {
+  50% {
+    opacity: 0;
+  }
+}
