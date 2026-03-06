@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import StartScreen from './components/StartScreen';
 import GameScreen from './components/GameScreen';
 import ResultScreen from './components/ResultScreen';
@@ -15,6 +15,7 @@ function App() {
   const [resultObj, setResultObj] = useState(null);
   const [bossSeeds, setBossSeeds] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState({});
+  const hasSubmittedRef = useRef(false); // 防止 StrictMode / 雙重觸發
 
   // Preload Boss Images
   useEffect(() => {
@@ -45,6 +46,9 @@ function App() {
   };
 
   const handleGameComplete = async (answers) => {
+    if (hasSubmittedRef.current) return; // 已經送出過了，忽略重複呼叫
+    hasSubmittedRef.current = true;
+
     setSubmittedAnswers(answers);
     setGameState('submitting');
     try {
@@ -53,17 +57,20 @@ function App() {
       setGameState('result');
     } catch (err) {
       alert("Failed to submit score. Check console or CORS setup.");
+      hasSubmittedRef.current = false; // 失敗了才解鎖，讓使用者可以重試
       setGameState('idle');
     }
   };
 
   const handleRetry = () => {
+    hasSubmittedRef.current = false; // 重新解鎖，允許下一次提交
     setGameState('idle');
     setResultObj(null);
-    setPlayerId(''); // Either keep it or reset it. Let's reset for full restart.
+    setPlayerId('');
   };
 
   const handleHome = () => {
+    hasSubmittedRef.current = false; // 重新解鎖
     setGameState('idle');
     setResultObj(null);
     setPlayerId('');
