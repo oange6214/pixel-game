@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 
 export default function GameScreen({ playerId, questions, onComplete, bossSeeds }) {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [answers, setAnswers] = useState({});
-    const [isSubmitting, setIsSubmitting] = useState(false);
+    const isSubmittingRef = useRef(false);
 
     if (!questions || questions.length === 0) {
         return <div className="pixel-panel">Loading questions...</div>;
@@ -18,14 +18,14 @@ export default function GameScreen({ playerId, questions, onComplete, bossSeeds 
     const bossUrl = `https://api.dicebear.com/7.x/pixel-art/svg?seed=${bossSeed}`;
 
     const handleSelect = (option) => {
-        if (isSubmitting) return; // 防止狂點造成重複提交
+        if (isSubmittingRef.current) return; // 使用 useRef 確保鎖定是即時生效的
 
         const newAnswers = { ...answers, [currentQ.id]: option };
         if (currentIndex + 1 < questions.length) {
             setAnswers(newAnswers);
             setCurrentIndex(currentIndex + 1);
         } else {
-            setIsSubmitting(true);
+            isSubmittingRef.current = true;
             onComplete(newAnswers);
         }
     };
