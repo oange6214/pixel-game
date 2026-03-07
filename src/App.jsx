@@ -15,7 +15,8 @@ function App() {
   const [resultObj, setResultObj] = useState(null);
   const [bossSeeds, setBossSeeds] = useState([]);
   const [submittedAnswers, setSubmittedAnswers] = useState({});
-  const hasSubmittedRef = useRef(false); // 防止 StrictMode / 雙重觸發
+  const [gameSessionId, setGameSessionId] = useState('');
+  const hasSubmittedRef = useRef(false);
 
   // Preload Boss Images
   useEffect(() => {
@@ -34,6 +35,8 @@ function App() {
 
   const handleStart = async (id) => {
     setPlayerId(id);
+    setGameSessionId(Date.now() + '_' + Math.random().toString(36).slice(2, 8)); // 每局產生唯一 sessionId
+    hasSubmittedRef.current = false;
     setGameState('loading');
     try {
       const data = await fetchQuestions(QUESTION_COUNT);
@@ -46,18 +49,18 @@ function App() {
   };
 
   const handleGameComplete = async (answers) => {
-    if (hasSubmittedRef.current) return; // 已經送出過了，忽略重複呼叫
+    if (hasSubmittedRef.current) return;
     hasSubmittedRef.current = true;
 
     setSubmittedAnswers(answers);
     setGameState('submitting');
     try {
-      const res = await submitGameResult(playerId, answers, PASS_THRESHOLD);
+      const res = await submitGameResult(playerId, answers, PASS_THRESHOLD, gameSessionId);
       setResultObj(res);
       setGameState('result');
     } catch (err) {
       alert("Failed to submit score. Check console or CORS setup.");
-      hasSubmittedRef.current = false; // 失敗了才解鎖，讓使用者可以重試
+      hasSubmittedRef.current = false;
       setGameState('idle');
     }
   };

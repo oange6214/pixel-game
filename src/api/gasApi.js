@@ -29,7 +29,7 @@ export const fetchQuestions = async (count = 5) => {
     }
 };
 
-export const submitGameResult = async (id, answers, threshold = 3) => {
+export const submitGameResult = async (id, answers, threshold = 3, requestId = '') => {
     if (!GAS_URL) {
         console.warn("No GAS URL provided. Simulating score submission.");
         return new Promise(resolve => setTimeout(() => resolve({
@@ -45,7 +45,8 @@ export const submitGameResult = async (id, answers, threshold = 3) => {
             action: "submitScore",
             id: id,
             answers: JSON.stringify(answers),
-            threshold: threshold
+            threshold: threshold,
+            requestId: requestId // 唯一 ID，讓後端做冪等防重複
         });
         const response = await fetch(`${GAS_URL}?${queryParams.toString()}`);
 

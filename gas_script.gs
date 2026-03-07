@@ -7,7 +7,8 @@ function doGet(e) {
     var data = {
       id: e.parameter.id,
       answers: e.parameter.answers ? JSON.parse(e.parameter.answers) : {},
-      threshold: parseInt(e.parameter.threshold) || 3
+      threshold: parseInt(e.parameter.threshold) || 3,
+      requestId: e.parameter.requestId || ''
     };
     return handleSubmitScore(data);
   }
@@ -85,11 +86,12 @@ function handleSubmitScore(data) {
       .setMimeType(ContentService.MimeType.JSON);
   }
 
-  // === 伺服器端防重複提交 (5 秒內同一個 ID 只處理一次) ===
+  // === 伺服器端防重複提交：用 requestId 做冪等鎖 ===
+  var requestId = data.requestId || '';
   var cache = CacheService.getScriptCache();
-  var cacheKey = 'submit_lock_' + id;
+  var cacheKey = 'req_' + (requestId || id);
   if (cache.get(cacheKey)) {
-    // 已在 5 秒內處理過，直接回傳上一次的成功結果避免重複寫入
+    // 相同 requestId 5 秒內只處理一次，直接回傳成功避免重複寫入
     return ContentService.createTextOutput(JSON.stringify({ success: true, deduplicated: true }))
       .setMimeType(ContentService.MimeType.JSON);
   }
